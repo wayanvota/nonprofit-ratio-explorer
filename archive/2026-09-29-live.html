@@ -740,6 +740,12 @@ function currSymbol() {
 }
 function fmtCur(n) { return currSymbol() + fmt(n); }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
 function pillHtml(cls, text) { return `<span class="pill pill-${cls}">${text}</span>`; }
 
 // ════ STEP NAVIGATION ════
@@ -844,11 +850,12 @@ function buildNarrative(org, data, ratios, profile, rating) {
   const { currentRatio, reserveMonths, restrictionPct, avgMonthlyExp, totalNetAssets } = ratios;
   const { threshCurrent, threshReserve, threshRestriction } = profile;
   const doc = docLabels[data.docType] || 'financial documents';
-  const fy = data.fyEnd || 'the most recent fiscal year';
+  const safeOrg = escapeHtml(org);
+  const fy = escapeHtml(data.fyEnd || 'the most recent fiscal year');
   const sym = currSymbol();
 
   // Para 1: framing
-  const p1 = `Based on ${doc} for the fiscal year ending ${fy}, ${org} presents a composite financial health score of <strong>${data.score}/100</strong> — reflecting a <strong>${rating.label.toLowerCase()}</strong> profile against this evaluation's configured thresholds. Per Grant Guardian's design, this score is intended to surface areas for conversation, not render a funding verdict. <span class="citation" title="Source: Statement of Financial Position + Statement of Activities">FP + SA</span>`;
+  const p1 = `Based on ${doc} for the fiscal year ending ${fy}, ${safeOrg} presents a composite financial health score of <strong>${data.score}/100</strong> — reflecting a <strong>${rating.label.toLowerCase()}</strong> profile against this evaluation's configured thresholds. Per Grant Guardian's design, this score is intended to surface areas for conversation, not render a funding verdict. <span class="citation" title="Source: Statement of Financial Position + Statement of Activities">FP + SA</span>`;
 
   // Para 2: liquidity
   let p2;
